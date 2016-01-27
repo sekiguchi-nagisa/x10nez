@@ -69,12 +69,21 @@ var ID : Int;
 
 
 /* Types */
-Type                      = { 'Int' #Stub }
+Type                      = FunctionType / ConstrainedType / Void
+FunctionType              = { $(TypeParameters?) _ '(' _ $('FormalList'?) _ ')' _ $(Guard?) '=>' $(Type) #FunctionType } /*  FIXME: fix FormalList, guard */
+ConstrainedType           = NamedType / AnnotatedType
+Void                      = { "void" #Void }
+NamedType                 = NamedTypeNoConstraints / DepNamedType
+NamedTypeNoConstraints    = SimpleNamedType / ParamizedNamedType
+ParamizedNamedType        = SimpleNamedType _ Arguments
+                          / SimpleNamedType _ TypeArguments ( _ Arguments)?
+TypeArguments             = { '[' _ $(Type) (_ ',' _ $(Type))* _ ']' #TypeArguments }
+/*SimpleNamedType           = */
 
 Annotations               = { '@A' #Stub }
 
-TypeArguments             = { '[Int,Int]' #Stub }
-TypeParameters            = { '[ID,ID]' #Stub }
+TypeParameters            = { '[' _ $(TypeParameter) ( _ ',' _ $(TypeParameter) )* _ ']' #TypeParameters }
+TypeParameter             = {  $(Identifier) #TypeParameter }
 TypeParametersI           = { '[ID,]' #Stub }
 
 example Type Int
@@ -185,8 +194,11 @@ example Expression at(this) ID
 
 
 /* Identifiers */
-Identifier                = { 'ID' #Stub }
-FullyQualifiedName        = { 'ID' #Stub }
+Identifier                = { !KEYWORD [a-zA-Z_][a-zA-Z0-9_]* #Identifier }
+                          / BackquotedIdentifier
+BackquotedIdentifier      = {  [`] ( '\\' [`] / '\\' '\\' / ![\\`] .)+ [`]  #BackquotedIdentifier}
+
+FullyQualifiedName        = { $(Identifier) (_ '.' _ $(Identifier) )* #FullyQualifiedName }
 
 example Identifier Hoge_piyo
 example Identifier Fuga1
@@ -374,4 +386,3 @@ KEYWORD                   = "abstract" / "as" / "assert" / "async" / "at"
 "!~"                      = '!~'
 "-<"                      = '-<'
 ">-"                      = '>-'
-
