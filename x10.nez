@@ -74,29 +74,25 @@ var ID : Int;
 
 
 /* Types */
-Type                      = FunctionType / ConstrainedType / Void
-FunctionType              = { $(TypeParameters?) _ '(' _ $('FormalList'?) _ ')' _ $(Guard?) '=>' $(Type) #FunctionType } /*  FIXME: fix FormalList, guard */
-ConstrainedType           = NamedType / AnnotatedType
-AnnotatedType             = { $(Type) _ $(Annotations) #AnnotatedType }
-Void                      = { "void" #Void }
-NamedType                 = NamedTypeNoConstraints / DepNamedType
-NamedTypeNoConstraints    = ParamizedNamedType / SimpleNamedType
-ParamizedNamedType        = SimpleNamedType _ Arguments
-                          / SimpleNamedType _ TypeArguments ( _ Arguments)?
-TypeArguments             = { '[' _ $(Type) (_ ',' _ $(Type))* _ ']' #TypeArguments }
-SimpleNamedType           = TypeName
-                          / '1' _ '.' _ Identifier      /* FIXME: replace '1' with 'Primary' */
-                          / ParamizedNamedType _ '.' _ Identifier   /* FIXME: indirect left recursion */
-                          / DepNamedType _ '.' _ Identifier
-TypeName                  = { $(Identifier) (_ '.' _ $(Identifier))* #TypeName }
-DepNamedType              = { $(SimpleNamedType) _ $(DepParams) #DepNamedType }
-                          / { $(ParamizedNamedType) _ $(DepParams) #DepNamedType }
-DepParams                 = { '{' _ $(Expression) _ '}' #DepParams }  
-
-
+Type                      = (Void / FunctionType / NamedType) {$ _ $(Annotations) #AnnotatedType }?
 Annotations               = { $(Annotation) (_ $(Annotation))* #Annotations }
 Annotation                = { '@' _ $(NamedTypeNoConstraints) #Annotation }
+Void                      = { "void" #Void }
 
+NamedType                 = NamedTypeNoConstraints {$ _ $(DepParams) #DepNamedType }?
+
+NamedTypeNoConstraints    = TypeName
+                            {$ _ ( $(Arguments) /
+                                    $(TypeArguments) (_ $(Arguments) )?   ) #ParamizedNamedType }*
+                            {$ _ ( _ '.' _ $(Identifier) #SimpleNamedType /
+                                    _ $(DepParams) #DepNamedType ) }*
+
+TypeArguments             = { '[' _ $(Type) (_ ',' _ $(Type))* _ ']' #TypeArguments }
+
+TypeName                  = { $(Identifier) (_ '.' _ $(Identifier))* #TypeName }    //FIXME: self
+DepParams                 = { '{' _ $(Expression) _ '}' #DepParams }
+
+FunctionType              = { $(TypeParameters)? _ '(' _ $( { $(Formal) (_ ',' _ $(Formal))* #FormalList } ) _ ')' _ $(Guard)? '=>' $(Type) #FunctionType }
 TypeParameters            = { '[' _ $(TypeParameter) ( _ ',' _ $(TypeParameter) )* _ ']' #TypeParameters }
 TypeParameter             = {  $(Identifier) #TypeParameter }
 TypeParametersI           = { '[ID,]' #Stub }
