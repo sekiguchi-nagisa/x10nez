@@ -91,7 +91,7 @@ SimpleNamedType           = TypeName
 TypeName                  = { $(Identifier) (_ '.' _ $(Identifier))* #TypeName }
 DepNamedType              = { $(SimpleNamedType) _ $(DepParams) #DepNamedType }
                           / { $(ParamizedNamedType) _ $(DepParams) #DepNamedType }
-DepParams                 = { '{' _ $(Expression) _ '}' #DepParams }
+DepParams                 = { '{' _ $(Expression) _ '}' #DepParams }  
 
 
 Annotations               = { $(Annotation) (_ $(Annotation))* #Annotations }
