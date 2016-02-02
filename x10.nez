@@ -92,7 +92,7 @@ TypeArguments             = { '[' _ $(Type) (_ ',' _ $(Type))* _ ']' #TypeArgume
 TypeName                  = { $(Identifier) (_ '.' _ $(Identifier))* #TypeName }    //FIXME: self
 DepParams                 = { '{' _ $(Expression) _ '}' #DepParams }
 
-FunctionType              = { $(TypeParameters)? _ '(' _ $( { $(Formal) (_ ',' _ $(Formal))* #FormalList } ) _ ')' _ $(Guard)? '=>' $(Type) #FunctionType }
+FunctionType              = { $(TypeParameters)? _ '(' _ $( { $(Formal) (_ ',' _ $(Formal))* #FormalList } ) _ ')' _ $(Guard)? _ '=>'_ $(Type) #FunctionType }
 TypeParameters            = { '[' _ $(TypeParameter) ( _ ',' _ $(TypeParameter) )* _ ']' #TypeParameters }
 TypeParameter             = {  $(Identifier) #TypeParameter }
 TypeParametersI           = { '[ID,]' #Stub }
